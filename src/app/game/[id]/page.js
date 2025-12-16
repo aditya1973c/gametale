@@ -118,7 +118,7 @@ export default function GameDetail() {
     return <div className="min-h-screen flex items-center justify-center text-white">Loading...</div>;
   }
 
-  const videoId = getYouTubeId(game.trailer_id);
+  const videoId = getYouTubeId(game.trailer_url);
 
   return (
     <main className="bg-black text-white min-h-screen">
