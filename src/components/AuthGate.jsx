@@ -41,26 +41,28 @@ export default function AuthGate({ children }) {
       .select("id, image")
       .not("image", "is", null);
 
-    // 🔀 RANDOMIZE ORDER EVERY REFRESH
     const shuffled = shuffleArray(data || []).slice(0, 18);
-
     setGames(shuffled);
     setLoading(false);
   }
 
-  if (loading) {
-  return <LoadingScreen />;
-   }
+  if (loading) return <LoadingScreen />;
 
-  if (!user) {
-    return <LandingLogin games={games} />;
-  }
+  if (!user) return <LandingLogin games={games} />;
 
   return children;
 }
 
 /* 🔐 LANDING LOGIN PAGE */
 function LandingLogin({ games }) {
+  // 🔒 LOCK SCROLL (ONLY FIX NEEDED)
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, []);
+
   async function login() {
     await supabase.auth.signInWithOAuth({
       provider: "google",
@@ -74,20 +76,17 @@ function LandingLogin({ games }) {
   return (
     <main className="min-h-screen bg-black grid grid-cols-1 lg:grid-cols-2">
       {/* LEFT – POSTER WALL */}
-      <div className="hidden lg:grid grid-cols-3 gap-4 p-6 relative overflow-hidden">
+      <div className="hidden lg:grid grid-cols-3 gap-4 p-6 relative overflow-hidden h-screen">
         <PosterColumn images={col1} animation="animate-[floatUp_18s_linear_infinite]" />
         <PosterColumn images={col2} animation="animate-[floatDown_22s_linear_infinite]" />
         <PosterColumn images={col3} animation="animate-[floatUp_20s_linear_infinite]" />
-
         <div className="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-black" />
       </div>
 
       {/* RIGHT – LOGIN */}
       <div className="flex items-center justify-center px-6">
         <div className="bg-white text-black rounded-2xl p-8 w-[360px] shadow-2xl">
-          <h1 className="text-2xl font-bold text-center mb-6">
-            GameTale
-          </h1>
+          <h1 className="text-2xl font-bold text-center mb-6">GameTale</h1>
 
           <button
             onClick={login}
@@ -108,7 +107,7 @@ function LandingLogin({ games }) {
 /* 🎞 POSTER COLUMN */
 function PosterColumn({ images, animation }) {
   return (
-    <div className={`space-y-4 ${animation}`}>
+    <div className={`space-y-4 ${animation} will-change-transform`}>
       {images.map((game) => (
         <div
           key={game.id}
